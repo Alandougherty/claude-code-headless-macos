@@ -13,6 +13,18 @@ Not logged in · Please run /login
 
 You run `/login`, it works for a few hours, then breaks again. Two to three times a day, every day.
 
+## Solution confirmed working on
+
+| | |
+|---|---|
+| macOS | 26.3.1 (Tahoe) on Apple Silicon (M4 Pro) |
+| Claude Code | 2.1.126 |
+| Subscription | Max (Free and Pro should work too — see [Limitations](#limitations)) |
+| Soak test | 13 autonomous refreshes over 4 days, zero failures |
+| Remote access | mosh from another macOS machine (also tested briefly via plain SSH) |
+
+If you run this on a different combination and it works (or doesn't), please open an issue so this table can grow.
+
 ## The cause
 
 Claude Code stores OAuth credentials in two places on macOS:
