@@ -115,3 +115,7 @@ This is not the first OAuth refresher for Claude Code, but it's the first to add
 ## License
 
 MIT. Pick whatever — it's ~80 lines of bash.
+
+## Acknowledgement
+
+Built with assistance from [Claude Code](https://claude.ai/code). Reviewed and tested by the author before publishing.
