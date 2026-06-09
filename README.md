@@ -18,9 +18,9 @@ You run `/login`, it works for a few hours, then breaks again. Two to three time
 | | |
 |---|---|
 | macOS | 26.3.1 (Tahoe) on Apple Silicon (M4 Pro) |
-| Claude Code | 2.1.126 |
+| Claude Code | 2.1.126 → 2.1.150 (auto-updated mid-soak; no behaviour change) |
 | Subscription | Max (Free and Pro should work too — see [Limitations](#limitations)) |
-| Soak test | 13 autonomous refreshes over 4 days, zero failures |
+| Soak test | 50 autonomous refreshes over 16 days, with **one** manual `/login` required (see [Known failure mode](#known-failure-mode)) |
 | Remote access | mosh from another macOS machine (also tested briefly via plain SSH) |
 
 If you run this on a different combination and it works (or doesn't), please open an issue so this table can grow.
@@ -94,6 +94,17 @@ The credentials file has more than just the three OAuth fields. `scopes`, `subsc
 ### Validation before write
 
 If the refresh response is malformed (e.g. an error page rather than JSON, or missing fields), the script logs the issue and exits without touching the file. Bad responses cannot corrupt working credentials.
+
+## Known failure mode
+
+Over 16 days of continuous operation, one incident: the credentials file was deleted mid-day. The suspected cause is a residual refresh-token race ([#24317](https://github.com/anthropics/claude-code/issues/24317)) — even with the 30-min buffer, if a live Claude Code session and the LaunchAgent both attempt a refresh in overlapping windows, one will get a stale token. On the next API call Claude Code 2.1.x appears to interpret the resulting 401 as a logout and delete `.credentials.json`.
+
+When this happens:
+
+- The script handles it gracefully — it logs "No credentials file" and exits cleanly on each subsequent fire. No crash, no corruption.
+- Recovery is a single `claude /login`. The LaunchAgent picks up the new file on its next 15-min tick.
+
+This isn't fully fixable from outside Claude Code itself (no public API exists to coordinate with live sessions). If it recurs frequently for you, reducing `REFRESH_BUFFER` in the script (e.g. to 300 = 5 min) narrows the race window further at the cost of cutting it closer on cold starts. Or open an issue here and we can compare notes.
 
 ## Limitations
 
